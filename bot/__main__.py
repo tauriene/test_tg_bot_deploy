@@ -5,7 +5,7 @@ from aiogram import Bot, Dispatcher
 from bot.utils.ui_commands import set_ui_commands
 from bot.utils.config import settings
 from bot.handlers import main_router
-from bot.db import init_db
+from bot.db import init_db, fsm_storage
 
 logging.basicConfig(
     level=logging.INFO if settings.debug else logging.WARNING,
@@ -22,7 +22,7 @@ async def on_startup():
 
 async def main():
     bot = Bot(token=settings.bot_token.get_secret_value())
-    dp = Dispatcher()
+    dp = Dispatcher(storage=fsm_storage)
 
     dp.startup.register(on_startup)
     dp.include_router(main_router)

@@ -58,6 +58,15 @@ async def cmd_chat(msg: Message, state: FSMContext):
     await state.set_state(Chat.text)
 
 
+@router.message(F.text == "Отмена")
+async def cancel(msg: Message, state: FSMContext):
+    await state.clear()
+    await msg.answer(
+        "Вы вышли из режима чата и вернулись в обычный режим!",
+        reply_markup=main_kb,
+    )
+
+
 @router.message(Chat.text)
 async def chat_response(msg: Message, state: FSMContext):
     user_req_count = await get_requests_count(tg_id=msg.from_user.id)
@@ -88,12 +97,3 @@ async def chat_response(msg: Message, state: FSMContext):
 @router.message(Chat.wait)
 async def chat_wait(msg: Message):
     await msg.answer("Подождите 5 секунд. Бот формирует ответ...")
-
-
-@router.message(F.text == "Отмена")
-async def cancel(msg: Message, state: FSMContext):
-    await state.clear()
-    await msg.answer(
-        "Вы вышли из режима чата и вернулись в обычный режим!",
-        reply_markup=main_kb,
-    )
