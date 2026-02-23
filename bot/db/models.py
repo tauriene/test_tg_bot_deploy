@@ -1,44 +1,23 @@
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncAttrs, async_sessionmaker
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import BigInteger, func, DateTime
 from datetime import datetime
-
-engine = create_async_engine(url="sqlite+aiosqlite:///db.sqlite", echo=True)
-
-async_session = async_sessionmaker(engine)
+from sqlalchemy.ext.asyncio import AsyncAttrs
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import BigInteger, func
 
 
 class Base(AsyncAttrs, DeclarativeBase):
-    pass
+    __abstract__ = True
 
 
 class User(Base):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    tg_id = mapped_column(BigInteger)
-
-
-async def init_db():
-    async with engine.begin() as conn:
-        # await conn.run_sync(Base.metadata.drop_all)
-        await conn.run_sync(Base.metadata.create_all)
+    tg_id = mapped_column(BigInteger, unique=True)
 
 
 class Request(Base):
     __tablename__ = "requests"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    user_id = mapped_column(BigInteger)
-    type: Mapped[str]
-    created_at: Mapped[datetime] = mapped_column(default=func.now())
-
-
-"""
-# 5 запросов текст
-1 запрос картинка
-
-регистрация
-защита от спама
-оценить ответ
-"""
+    tg_id: Mapped[int] = mapped_column(BigInteger)
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now(), unique=True)
